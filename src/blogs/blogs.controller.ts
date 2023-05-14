@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { JoiValidationPipe } from '../common/pipes/joiValidation.pipe';
@@ -15,8 +16,10 @@ import { CreateBlogDto, createBlogSchema } from './dto/create-blog.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateBlogDto, updateBlogSchema } from './dto/update-blog.dto';
 import { BlogDocument } from './schemas/blog.schema';
+import { AuthGuard } from '../common/guards/auth.guard';
 
 @Controller('blogs')
+@UseGuards(AuthGuard)
 export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
@@ -41,7 +44,7 @@ export class BlogsController {
   async createBlog(
     @Body(new JoiValidationPipe(createBlogSchema)) createBlogDto: CreateBlogDto,
   ) {
-    const author = await this.usersService.findUser(createBlogDto.author);
+    const author = await this.usersService.findUserById(createBlogDto.author);
     if (!author) {
       throw new BadRequestException('Author not found');
     }

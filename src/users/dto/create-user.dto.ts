@@ -9,5 +9,5 @@ export interface CreateUserDto {
 export const createUserSchema = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().required(),
-  roles: Joi.array().items(Joi.string().valid('Admin', 'User')).required(),
+  roles: Joi.array().items(Joi.string().valid('Admin', 'User')),
 });

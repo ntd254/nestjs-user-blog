@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -7,14 +8,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JoiValidationPipe } from '../common/pipes/joiValidation.pipe';
 import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UserDocument } from './schemas/user.schema';
 import { UpdateUserDto, updateUserSchema } from './dto/update-user.dto';
+import { AuthGuard } from '../common/guards/auth.guard';
 
 @Controller('users')
+@UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -25,7 +29,7 @@ export class UsersController {
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
-    const user = await this.usersService.findUser(id);
+    const user = await this.usersService.findUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -33,9 +37,15 @@ export class UsersController {
   }
 
   @Post()
-  createUser(
+  async createUser(
     @Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
   ) {
+    const existedUser = await this.usersService.findUserByUsername(
+      createUserDto.username,
+    );
+    if (existedUser) {
+      throw new ConflictException('Duplicate username');
+    }
     return this.usersService.create(createUserDto);
   }
 
@@ -44,7 +54,7 @@ export class UsersController {
     @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
     @Param('id') id: string,
   ) {
-    const user: UserDocument = await this.usersService.findUser(id);
+    const user: UserDocument = await this.usersService.findUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -53,7 +63,7 @@ export class UsersController {
 
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    const user: UserDocument = await this.usersService.findUser(id);
+    const user: UserDocument = await this.usersService.findUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
