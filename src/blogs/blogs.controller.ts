@@ -46,7 +46,7 @@ export class BlogsController {
   }
 
   @Post()
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.User)
   async createBlog(
     @Body(new JoiValidationPipe(createBlogSchema)) createBlogDto: CreateBlogDto,
   ) {

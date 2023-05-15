@@ -30,13 +30,13 @@ export class AuthService {
     res.cookie(
       'refreshToken',
       await this.jwtService.signAsync({ username: user.username }),
-      { httpOnly: true, maxAge: 30 * 1000 },
+      { httpOnly: true, maxAge: 15 * 60 * 1000 },
     );
     return {
       accessToken: await this.jwtService.signAsync(
         { username: user.username, roles: user.roles },
         {
-          expiresIn: '30s',
+          expiresIn: '5m',
         },
       ),
     };
