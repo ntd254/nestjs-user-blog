@@ -18,6 +18,7 @@ import { UpdateUserDto, updateUserSchema } from './dto/update-user.dto';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/constants/roles.enum';
 
 @Controller('users')
 @UseGuards(AuthGuard, RolesGuard)
@@ -25,13 +26,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('Admin', 'User')
+  @Roles(Role.Admin, Role.User)
   getAllUsers() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Roles('Admin', 'User')
+  @Roles(Role.Admin, Role.User)
   async getUser(@Param('id') id: string) {
     const user = await this.usersService.findUserById(id);
     if (!user) {
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Post()
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async createUser(
     @Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
   ) {
@@ -55,7 +56,7 @@ export class UsersController {
   }
 
   @Put(':id')
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async updateUser(
     @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
     @Param('id') id: string,
@@ -68,7 +69,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async deleteUser(@Param('id') id: string) {
     const user: UserDocument = await this.usersService.findUserById(id);
     if (!user) {

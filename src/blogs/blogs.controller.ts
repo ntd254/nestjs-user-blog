@@ -19,6 +19,7 @@ import { BlogDocument } from './schemas/blog.schema';
 import { AuthGuard } from '../common/guards/auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/constants/roles.enum';
 
 @Controller('blogs')
 @UseGuards(AuthGuard, RolesGuard)
@@ -29,13 +30,13 @@ export class BlogsController {
   ) {}
 
   @Get()
-  @Roles('Admin', 'User')
+  @Roles(Role.Admin, Role.User)
   getAllBlogs() {
     return this.blogsService.findAll();
   }
 
   @Get(':id')
-  @Roles('Admin, User')
+  @Roles(Role.Admin, Role.User)
   async getBlog(@Param('id') id: string) {
     const blog = await this.blogsService.findBlog(id);
     if (!blog) {
@@ -45,7 +46,7 @@ export class BlogsController {
   }
 
   @Post()
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async createBlog(
     @Body(new JoiValidationPipe(createBlogSchema)) createBlogDto: CreateBlogDto,
   ) {
@@ -57,7 +58,7 @@ export class BlogsController {
   }
 
   @Put(':id')
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async updateBlog(
     @Body(new JoiValidationPipe(updateBlogSchema)) updateBlogDto: UpdateBlogDto,
     @Param('id') id: string,
@@ -70,7 +71,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
-  @Roles('Admin')
+  @Roles(Role.Admin)
   async deleteBlog(@Param('id') id: string) {
     const blog: BlogDocument = await this.blogsService.findBlog(id);
     if (!blog) {
