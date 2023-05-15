@@ -26,8 +26,16 @@ export class AuthController {
 
   @Get('refreshToken')
   refreshToken(@Req() req: Request) {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken: string = req.cookies?.refreshToken;
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
+    return this.authService.refreshToken(refreshToken);
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('refreshToken', { httpOnly: true, maxAge: 30 * 1000 });
+    return { statusCode: 200, message: 'Cookie cleared' };
+  }
 }

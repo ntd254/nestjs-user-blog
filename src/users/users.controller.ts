@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  SetMetadata,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -16,18 +17,21 @@ import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UserDocument } from './schemas/user.schema';
 import { UpdateUserDto, updateUserSchema } from './dto/update-user.dto';
 import { AuthGuard } from '../common/guards/auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @SetMetadata('roles', ['Admin', 'User'])
   getAllUsers() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @SetMetadata('roles', ['Admin', 'User'])
   async getUser(@Param('id') id: string) {
     const user = await this.usersService.findUserById(id);
     if (!user) {
@@ -37,6 +41,7 @@ export class UsersController {
   }
 
   @Post()
+  @SetMetadata('roles', ['Admin'])
   async createUser(
     @Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
   ) {
@@ -50,6 +55,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @SetMetadata('roles', ['Admin'])
   async updateUser(
     @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
     @Param('id') id: string,
@@ -62,6 +68,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @SetMetadata('roles', ['Admin'])
   async deleteUser(@Param('id') id: string) {
     const user: UserDocument = await this.usersService.findUserById(id);
     if (!user) {

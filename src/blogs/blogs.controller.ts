@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  SetMetadata,
   UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
@@ -17,9 +18,10 @@ import { UsersService } from '../users/users.service';
 import { UpdateBlogDto, updateBlogSchema } from './dto/update-blog.dto';
 import { BlogDocument } from './schemas/blog.schema';
 import { AuthGuard } from '../common/guards/auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 @Controller('blogs')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
@@ -27,11 +29,13 @@ export class BlogsController {
   ) {}
 
   @Get()
+  @SetMetadata('roles', ['Admin', 'User'])
   getAllBlogs() {
     return this.blogsService.findAll();
   }
 
   @Get(':id')
+  @SetMetadata('roles', ['Admin', 'User'])
   async getBlog(@Param('id') id: string) {
     const blog = await this.blogsService.findBlog(id);
     if (!blog) {
@@ -41,6 +45,7 @@ export class BlogsController {
   }
 
   @Post()
+  @SetMetadata('roles', ['Admin'])
   async createBlog(
     @Body(new JoiValidationPipe(createBlogSchema)) createBlogDto: CreateBlogDto,
   ) {
@@ -52,6 +57,7 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @SetMetadata('roles', ['Admin'])
   async updateBlog(
     @Body(new JoiValidationPipe(updateBlogSchema)) updateBlogDto: UpdateBlogDto,
     @Param('id') id: string,
@@ -64,6 +70,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @SetMetadata('roles', ['Admin'])
   async deleteBlog(@Param('id') id: string) {
     const blog: BlogDocument = await this.blogsService.findBlog(id);
     if (!blog) {
